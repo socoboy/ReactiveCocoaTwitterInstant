@@ -78,7 +78,7 @@ static NSString * const RWTwitterInstantDomain = @"TwitterInstant";
         }];
         [self.resultsViewController displayTweets:tweets];
     } error:^(NSError *error) {
-        
+        NSLog(@"%@", error);
     }];
 }
 
@@ -113,6 +113,7 @@ static NSString * const RWTwitterInstantDomain = @"TwitterInstant";
                                                         [subscriber sendCompleted];
                                                     }
                                                 }];
+        return nil;
     }];
 }
 
@@ -142,7 +143,7 @@ static NSString * const RWTwitterInstantDomain = @"TwitterInstant";
         @strongify(self);
         SLRequest *request = [self requestForTwitterSearchWithText:text];
         NSArray *twitterAccounts = [self.accountStore accountsWithAccountType:self.twitterAccountType];
-        if (twitterAccounts.count) {
+        if (!twitterAccounts.count) {
             [subscriber sendError:noAccountsError];
         } else {
             [request setAccount:[twitterAccounts lastObject]];
