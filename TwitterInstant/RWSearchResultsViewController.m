@@ -14,6 +14,7 @@
 @interface RWSearchResultsViewController ()
 
 @property (nonatomic, strong) NSArray *tweets;
+- (RACSignal *)signalForLoadingImage:(NSString *)imageURL;
 @end
 
 @implementation RWSearchResultsViewController {
@@ -50,8 +51,22 @@
   RWTweet *tweet = self.tweets[indexPath.row];
   cell.twitterStatusText.text = tweet.status;
   cell.twitterUsernameText.text = [NSString stringWithFormat:@"@%@",tweet.username];
+  cell.twitterAvatarView.image = nil;
+  RAC(cell.twitterAvatarView, image) = [[self signalForLoadingImage:tweet.profileImageUrl] deliverOn:[RACScheduler mainThreadScheduler]];
   
   return cell;
+}
+
+#pragma mark - Signals
+- (RACSignal *)signalForLoadingImage:(NSString *)imageURL {
+    RACScheduler *scheduler = [RACScheduler schedulerWithPriority:RACSchedulerPriorityBackground];
+    return [[RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+        NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:imageURL]];
+        UIImage *image = [UIImage imageWithData:data];
+        [subscriber sendNext:image];
+        [subscriber sendCompleted];
+        return nil;
+    }] subscribeOn:scheduler];
 }
 
 @end
