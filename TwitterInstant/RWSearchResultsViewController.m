@@ -52,7 +52,9 @@
   cell.twitterStatusText.text = tweet.status;
   cell.twitterUsernameText.text = [NSString stringWithFormat:@"@%@",tweet.username];
   cell.twitterAvatarView.image = nil;
-  RAC(cell.twitterAvatarView, image) = [[self signalForLoadingImage:tweet.profileImageUrl] deliverOn:[RACScheduler mainThreadScheduler]];
+  RAC(cell.twitterAvatarView, image) = [[[self signalForLoadingImage:tweet.profileImageUrl]
+                                          takeUntil:cell.rac_prepareForReuseSignal]
+                                          deliverOn:[RACScheduler mainThreadScheduler]];
   
   return cell;
 }
